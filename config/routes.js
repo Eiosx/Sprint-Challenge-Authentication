@@ -1,4 +1,10 @@
 const axios = require('axios');
+const bcrypt = require('bcryptjs');
+const knex = require('knex');
+
+const knexConfig = require('../knexfile.js');
+
+const db = knex(knexConfig.development);
 
 const { authenticate } = require('../auth/authenticate');
 
@@ -9,8 +15,25 @@ module.exports = server => {
 };
 
 function register(req, res) {
-  // implement user registration
-}
+  const user = req.body;
+  const {username, password} = req.body;
+
+  if(user && username && password){
+    const hash = bcrypt.hashSync(user.password);
+    user.password = hash;
+
+    db.insert(user)
+    .into('users')
+    .then(response => {
+      res.json(response)
+    })
+    .catch(err => {
+      res.status(500).json({err});
+    });
+  }else {
+    res.status(400).json({message: 'Please include a username and password.'});
+  }
+;}
 
 function login(req, res) {
   // implement user login
