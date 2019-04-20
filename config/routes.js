@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs');
 const knex = require('knex');
 
 const knexConfig = require('../knexfile.js');
-
 const db = knex(knexConfig.development);
 
 const { authenticate } = require('../auth/authenticate');
+const { generateToken } = require('../auth/generateToken');
 
 module.exports = server => {
   server.post('/api/register', register);
@@ -43,9 +43,9 @@ function login(req, res) {
     .where({username})
     .first()
     .then(user => {
-      if(response && bcrypt.compareSync(password, user.password)){
+      if(user && bcrypt.compareSync(password, user.password)){
         const token = generateToken(user);
-        res.json({message: `Hello ${user.username}!`,
+        res.json({message: `Hello, ${user.username}!`,
       token: token});
       }else {
         res.status(401).json({message: 'You shall not pass!'})
