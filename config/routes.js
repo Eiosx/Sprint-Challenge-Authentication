@@ -33,11 +33,28 @@ function register(req, res) {
   }else {
     res.status(400).json({message: 'Please include a username and password.'});
   }
-;}
+};
 
 function login(req, res) {
-  // implement user login
-}
+  const {username, password} = req.body;
+
+  if(username && password){
+    db('users')
+    .where({username})
+    .first()
+    .then(user => {
+      if(response && bcrypt.compareSync(password, user.password)){
+        const token = generateToken(user);
+        res.json({message: `Hello ${user.username}!`,
+      token: token});
+      }else {
+        res.status(401).json({message: 'You shall not pass!'})
+      }
+    })
+  }else{
+    res.status(400).json({message: 'Please provide a username and password.'});
+  }
+};
 
 function getJokes(req, res) {
   const requestOptions = {
